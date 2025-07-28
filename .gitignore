@@ -1,0 +1,36 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# macOS
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Env files
+.env
+.env.*
+
+# Build output
+dist/
+build/
+out/
+
+# VSCode
+.vscode/
+
+# Dependency directories
+bower_components/
+
+# Coverage
+coverage/
+
+# Misc
+*.swp
+*.swo
+.idea/
+*.iml
