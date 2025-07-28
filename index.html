@@ -137,7 +137,24 @@
         ];
         renderFlightPath(flightPaths, map);
 
-        
+        const panel = document.getElementById("ruta");
+        panel.innerHTML += `
+  <h3>Tramos en avión</h3>
+  <ul>
+    <li><strong>Ciudad de México → Oporto</strong><br>
+      Vuelo directo, duración aproximada: 10h 30min
+    </li>
+    <li><strong>Lisboa → Madrid</strong><br>
+      Vuelo directo, duración aproximada: 1h 25min
+    </li>
+    <li><strong>Madrid → Granada</strong><br>
+      Vuelo directo, duración aproximada: 1h 10min
+    </li>
+    <li><strong>Madrid → Ciudad de México</strong><br>
+      Vuelo directo, duración aproximada: 11h 25min
+    </li>
+  </ul>
+`;
       }
 
       async function renderRoute(directionsService, routes, renderer, map) {
@@ -197,7 +214,7 @@
               } → ${leg.end_address}<br>
           Distancia: ${leg.distance.text}, Tiempo: ${
             leg.duration.text
-          }</p>`;
+              }${leg.steps[0].transit ? `<br>Instrucciones: ${leg.steps[0].instructions}, Paradas: ${leg.steps[0].transit.num_stops}` : ''}</p>`;
             });
           } catch (error) {
             console.error("Error al obtener la ruta:", error);
@@ -229,7 +246,13 @@
   <body onload="initMap()">
     <div id="panel">
       <h2>Detalles de las rutas</h2>
-      <h3>Itinerario Ruta 1: España - Portugal - Sur</h3>
+      <p>Este mapa muestra las rutas entre España y Portugal, incluyendo tramos en avión y tren.</p>
+      <p>Colores en el mapa:</p>
+      <ul>
+        <li><span style="color: #0074D9;">Azul</span>: Rutas en coche</li>
+        <li><span style="color: #FF4136;">Rojo</span>: Rutas en tren</li>
+        <li><span style="color: #8e44ad;">Morado</span>: Rutas en avión</li>
+      </ul>
       <div id="ruta"></div>
     </div>
     <div id="map"></div>
