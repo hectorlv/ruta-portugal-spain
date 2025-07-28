@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Rutas España - Portugal</title>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      #panel {
+        width: 300px;
+        height: 100vh;
+        overflow-y: auto;
+        float: left;
+        padding: 10px;
+        box-sizing: border-box;
+        background: #f9f9f9;
+        font-family: sans-serif;
+      }
+      #map {
+        margin-left: 300px;
+        height: 100vh;
+        width: calc(100% - 300px);
+      }
+      @media (max-width: 700px) {
+      #panel {
+        width: 100vw;
+        height: auto;
+        float: none;
+        margin: 0;
+        position: stat~ic;
+      }
+      #map {
+        margin-left: 0;
+        width: 100vw;
+        height: 60vh;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDzLUPcHdrHVU1UUIK0VpbHZHHp5wOqWLU"></script>
+    <script>
+      function initMap() {
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 6,
+          center: { lat: 40.4168, lng: -3.7038 }, // Madrid
+        });
+
+        // Directions service & renderers
+        const directionsService = new google.maps.DirectionsService();
+        const directionsRenderer1 = new google.maps.DirectionsRenderer({
+          suppressMarkers: true,
+          polylineOptions: { strokeColor: "#0074D9", strokeWeight: 5 },
+        });
+        const directionsRenderer2 = new google.maps.DirectionsRenderer({
+          suppressMarkers: true,
+          polylineOptions: { strokeColor: "#FF4136", strokeWeight: 5 },
+        });
+
+        const routes = [
+          {
+            origin: "Oporto, Portugal",
+            destination: "Lisboa, Portugal",
+            waypoints: [
+              { location: "Fatima, Portugal" },
+              { location: "Coimbra, Portugal" },
+              { location: "Oporto, Portugal" },
+              { location: "Sintra, Portugal" },
+              { location: "Mafra, Portugal" },
+            ],
+            travelMode: google.maps.TravelMode.DRIVING,
+          },
+          {
+            origin: "Madrid, Spain",
+            destination: "Madrid, Spain",
+            waypoints: [
+              { location: "Toledo, Spain" },
+              { location: "Segovia, Spain" },
+              { location: "Avila, Spain" },
+            ],
+            travelMode: google.maps.TravelMode.DRIVING,
+          },
+          {
+            origin: "Granada, Spain",
+            destination: "Cordoba, Spain",
+            waypoints: [],
+            travelMode: google.maps.TravelMode.TRANSIT,
+            transitOptions: {
+              departureTime: new Date("2025-10-12T15:06:00+02:00"),
+              modes: [google.maps.TransitMode.TRAIN]
+            },
+          },
+          {
+            origin: "Cordoba, Spain",
+            destination: "Sevilla, Spain",
+            waypoints: [],
+            travelMode: google.maps.TravelMode.TRANSIT,
+            transitOptions: {
+              departureTime: new Date("2025-10-13T17:49:00+02:00"),
+              modes: [google.maps.TransitMode.TRAIN]
+            },
+          },
+          {
+            origin: "Sevilla, Spain",
+            destination: "Madrid, Spain",
+            waypoints: [],
+            travelMode: google.maps.TravelMode.TRANSIT,
+            transitOptions: {
+              departureTime: new Date("2025-10-16T15:06:00+02:00"),
+              modes: [google.maps.TransitMode.TRAIN]
+            },
+          }
+        ];
+
+
+        renderRoute(directionsService, routes, directionsRenderer1, map);
+        flightPaths = [
+          // Mexico City to Oporto
+          [
+            { lat: 19.4326, lng: -99.1332 }, // Mexico City
+            { lat: 41.1496, lng: -8.6109 }, // Oporto
+          ],
+          // Oporto to Lisboa
+          [
+            { lat: 38.7223, lng: -9.1393 }, // Lisboa
+            { lat: 40.4168, lng: -3.7038 }, // Madrid
+          ],
+          // Madrid to Granada
+          [
+            { lat: 40.4168, lng: -3.7038 }, // Madrid
+            { lat: 37.1882, lng: -3.6067 }, // Granada
+          ],
+          //Madrid to Mexico City
+          [
+            { lat: 40.4168, lng: -3.7038 }, // Madrid
+            { lat: 19.4326, lng: -99.1332 } // Mexico City
+          ]
+        ];
+        renderFlightPath(flightPaths, map);
+
+        
+      }
+
+      async function renderRoute(directionsService, routes, renderer, map) {
+        function routesAsync(request) {
+          return new Promise((resolve, reject) => {
+            directionsService.route(request, (result, status) => {
+              if (status === "OK") {
+                resolve(result);
+              } else {
+                reject(status);
+              }
+            });
+          });
+        }
+        
+        for (const r of routes) {
+          const { origin, destination, waypoints, travelMode, transitOptions } = r;
+          try {
+            const result = await routesAsync({
+              origin,
+              destination,
+              waypoints,
+              travelMode,
+              transitOptions: transitOptions || {},
+            });
+            console.log(result);
+            
+            const routeRenderer = new google.maps.DirectionsRenderer({
+              map: map,
+              directions: result,
+              suppressMarkers: true,
+              polylineOptions: {
+                strokeColor: travelMode === google.maps.TravelMode.DRIVING ? "#0074D9" : "#FF4136",
+                strokeWeight: 5,
+              },
+            });
+            const cities = result.routes[0].legs.map(
+              (leg) => leg.start_address.split(",")[0]
+            );
+
+            cities.forEach((city, i) => {
+              const leg =
+                result.routes[0].legs[
+                  i < result.routes[0].legs.length ? i : i - 1
+                ];
+              const position = leg.end_location;
+              new google.maps.Marker({
+                position: position,
+                map: map,
+                title: city,
+              });
+            });
+            const panel = document.getElementById("ruta");
+            result.routes[0].legs.forEach((leg, i) => {
+              panel.innerHTML += `<p><strong>Tramo ${i + 1}:</strong> ${
+                leg.start_address
+              } → ${leg.end_address}<br>
+          Distancia: ${leg.distance.text}, Tiempo: ${
+            leg.duration.text
+          }</p>`;
+            });
+          } catch (error) {
+            console.error("Error al obtener la ruta:", error);
+          }
+        };
+      }
+
+      function renderFlightPath(flightPaths, map) {
+        // Create a polyline for each flight path
+        flightPaths.forEach((path) => {
+          const flightPath = new google.maps.Polyline({
+            path: path,
+            geodesic: true,
+            strokeColor: "#8e44ad",
+            strokeOpacity: 0.8,
+            strokeWeight: 4,
+            icons: [
+              {
+                icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW },
+                offset: "100%",
+              },
+            ],
+          });
+          flightPath.setMap(map);
+        });
+      }
+    </script>
+  </head>
+  <body onload="initMap()">
+    <div id="panel">
+      <h2>Detalles de las rutas</h2>
+      <h3>Itinerario Ruta 1: España - Portugal - Sur</h3>
+      <div id="ruta"></div>
+    </div>
+    <div id="map"></div>
+  </body>
+</html>
