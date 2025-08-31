@@ -63,13 +63,10 @@
             destination: "Lisboa, Portugal",
             waypoints: [
               { location: "Coimbra, Portugal" },
-              { location: "Fatima, Portugal" },
               { location: "Batalha, Portugal"},
-              { location: "Nazaré, Portugal"},
-              { location: "Óbidos, Portugal"},
+              { location: "Fatima, Portugal" },
               { location: "Lisboa, Portugal" },
-              { location: "Sintra, Portugal" },
-              { location: "Mafra, Portugal" },
+              { location: "Sintra, Portugal" }
             ],
             travelMode: google.maps.TravelMode.DRIVING,
           },
@@ -120,24 +117,24 @@
         flightPaths = [
           // Mexico City to Oporto
           [
-            { lat: 19.4326, lng: -99.1332 }, // Mexico City
-            { lat: 40.4168, lng: -3.7038 }, // Madrid
-            { lat: 41.1496, lng: -8.6109 }, // Oporto
+            { lat: 19.436169079217773, lng: -99.07072287203195 }, // Mexico City Airport
+            { lat: 40.49098395926725, lng: -3.572456116177815 }, // Madrid Airport
+            { lat: 41.247649238140774, lng: -8.679794767673798 }, // Oporto
           ],
           // Oporto to Lisboa
           [
-            { lat: 38.7223, lng: -9.1393 }, // Lisboa
-            { lat: 40.4168, lng: -3.7038 }, // Madrid
+            { lat: 41.247649238140774, lng: -8.679794767673798 }, // Oporto
+            { lat: 38.77994025662794, lng: -9.13536147180104 }, // Lisboa
           ],
           // Madrid to Granada
           [
-            { lat: 40.4168, lng: -3.7038 }, // Madrid
-            { lat: 37.1882, lng: -3.6067 }, // Granada
+            { lat: 40.49098395926725, lng: -3.572456116177815 }, // Madrid Airport
+            { lat: 37.18788252763504, lng: -3.7775277500907265 }, // Granada
           ],
           //Madrid to Mexico City
           [
-            { lat: 40.4168, lng: -3.7038 }, // Madrid
-            { lat: 19.4326, lng: -99.1332 } // Mexico City
+            { lat: 40.49098395926725, lng: -3.572456116177815 }, // Madrid Airport
+            { lat: 19.436169079217773, lng: -99.07072287203195 } // Mexico City Airport
           ]
         ];
         renderFlightPath(flightPaths, map);
@@ -219,12 +216,29 @@
               } → ${leg.end_address}<br>
           Distancia: ${leg.distance.text}, Tiempo: ${
             leg.duration.text
-              }${leg.steps[0].transit ? `<br>Instrucciones: ${leg.steps[0].instructions}, Paradas: ${leg.steps[0].transit.num_stops}` : ''}</p>`;
+              }${
+              leg.steps[0].transit
+                ? `<br>Instrucciones: ${leg.steps[0].instructions}<br>Salida: ${leg.steps[0].transit.departure_stop.name} ${formatDate(leg.steps[0].transit.departure_time.value)}<br>Llegada: ${leg.steps[0].transit.arrival_stop.name} ${formatDate(leg.steps[0].transit.arrival_time.value)}<br>Paradas: ${leg.steps[0].transit.num_stops}`
+                : ''
+              }</p>`;
             });
           } catch (error) {
             console.error("Error al obtener la ruta:", error);
           }
         };
+      }
+
+      // Formatea tipo Date a dd/MM/yyyy hh:mm 
+      function formatDate(date) {
+        const options = {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        };
+        return date.toLocaleString('es-ES', options);
       }
 
       function renderFlightPath(flightPaths, map) {
