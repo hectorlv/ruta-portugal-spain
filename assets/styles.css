@@ -17,7 +17,6 @@ body {
   grid-template-columns: 1fr;
   font-family: sans-serif;
   height: 100vh;
-
 }
 
 /* Panel lateral con detalles */
@@ -53,23 +52,18 @@ footer {
   background: #fafafa;
   padding: 1em 0;
   border-top: 1px solid #eee;
-
 }
 
 @media (max-width: 700px) {
-  body {
-    flex-direction: column;
+  .main-content {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
   }
   #panel {
     width: 100%;
+    max-width: none;
     margin: 0;
     position: static;
-  }
-  /* Asegura visibilidad del mapa en móviles, evita conflictos con flex */
-  #map {
-    flex: 0 0 60vh; /* reserva altura en columna */
-    width: 100%;
-    height: auto; /* que mande el flex-basis */
   }
 }
 
