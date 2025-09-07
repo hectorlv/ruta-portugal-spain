@@ -8,6 +8,8 @@ window.ROUTES = [
       { location: "Mosteiro da Batalha" },
       { location: "Santuário de Nossa Senhora de Fátima" },
       { location: "Lisboa, Portugal" },  
+      { location: "Boca do Inferno" },
+      { location: "Lisboa, Portugal" },
       { location: "Palácio Nacional da Pena" }
     ],
     travelMode: "DRIVING",
